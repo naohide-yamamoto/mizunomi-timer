@@ -10,6 +10,7 @@ APP_DIR="$BUILD_DIR/$APP_NAME.app"
 CONTENTS_DIR="$APP_DIR/Contents"
 MACOS_DIR="$CONTENTS_DIR/MacOS"
 RESOURCES_DIR="$CONTENTS_DIR/Resources"
+ENTITLEMENTS_FILE="$ROOT_DIR/Resources/MizunomiTimer.entitlements"
 SCRATCH_DIR="$(mktemp -d "${TMPDIR:-/tmp}/mizunomi-timer-swiftpm-$CONFIGURATION.XXXXXX")"
 CACHE_DIR="$SCRATCH_DIR/cache"
 CONFIG_DIR="$SCRATCH_DIR/config"
@@ -41,11 +42,11 @@ cp "$ROOT_DIR/Resources/Info.plist" "$CONTENTS_DIR/Info.plist"
 cp "$ROOT_DIR/Resources/UserManual.html" "$RESOURCES_DIR/UserManual.html"
 
 swift "$ROOT_DIR/scripts/generate-app-icon.swift" "$ICONSET_DIR" "$RESOURCES_DIR/AppIcon.icns"
-cp "$ICONSET_DIR/icon_128x128.png" "$RESOURCES_DIR/HelpIcon.png"
-cp "$ICONSET_DIR/icon_32x32.png" "$RESOURCES_DIR/favicon.png"
+cp "$ROOT_DIR/Resources/HelpIcon.png" "$RESOURCES_DIR/HelpIcon.png"
+cp "$ROOT_DIR/Resources/favicon.png" "$RESOURCES_DIR/favicon.png"
 
 if [[ "${SKIP_CODESIGN:-0}" != "1" ]]; then
-  codesign --force --sign - "$APP_DIR" >/dev/null
+  codesign --force --sign - --entitlements "$ENTITLEMENTS_FILE" "$APP_DIR" >/dev/null
 fi
 
 touch "$APP_DIR"

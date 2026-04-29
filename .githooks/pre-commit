@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Guard Mizunomi Timer against committing private signing material, local
+# release artefacts, and obvious notarization credentials.
+
+staged_files="$(git diff --cached --name-only --diff-filter=ACMR)"
+
+if [[ -z "${staged_files}" ]]; then
+  exit 0
+fi
+
+block_path() {
+  local path="$1"
+  echo "Commit blocked: private or local-only artefact staged: ${path}" >&2
+  echo "Remove it from staging with: git restore --staged '${path}'" >&2
+  exit 1
+}
+
+while IFS= read -r path; do
+  [[ -z "${path}" ]] && continue
+
+  case "${path}" in
+    .build/*|build/*|DerivedData/*|dist/*)
+      block_path "${path}"
+      ;;
+    *.app|*.app/*|*.dmg|*.pkg|*.zip|*.xcarchive|*.xcarchive/*)
+      block_path "${path}"
+      ;;
+    *.p12|*.cer|*.certSigningRequest|*.mobileprovision|*.provisionprofile)
+      block_path "${path}"
+      ;;
+    *.pem|*.key|*.p8|AuthKey_*.p8|.env|.env.*|*.local.md)
+      block_path "${path}"
+      ;;
+  esac
+done <<< "${staged_files}"
+
+added_lines="$(
+  git diff --cached --unified=0 -- . ':(exclude).githooks/**' |
+    grep '^+' |
+    grep -v '^+++' || true
+)"
+
+if [[ -z "${added_lines}" ]]; then
+  exit 0
+fi
+
+block_content() {
+  local reason="$1"
+  echo "Commit blocked: ${reason}" >&2
+  echo "Review staged additions with: git diff --cached" >&2
+  exit 1
+}
+
+if grep -Eq 'BEGIN [A-Z ]*PRIVATE KEY' <<< "${added_lines}"; then
+  block_content "private key material appears in staged content."
+fi
+
+if grep -Eq 'APPLE_ID_PASSWORD|APP_SPECIFIC_PASSWORD|FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD|AC_PASSWORD|NOTARY_PASSWORD|NOTARY_API_KEY' <<< "${added_lines}"; then
+  block_content "Apple/notarization credential variable appears in staged content."
+fi
+
+password_lines="$(grep -Ei '^\+.*--password[[:space:]]+' <<< "${added_lines}" | grep -Fv 'app-specific-password' || true)"
+if [[ -n "${password_lines}" ]]; then
+  block_content "a non-placeholder --password value appears in staged content."
+fi
+
+apple_id_lines="$(grep -Ei '^\+.*--apple-id[[:space:]]+' <<< "${added_lines}" | grep -Fv 'you@example.com' || true)"
+if [[ -n "${apple_id_lines}" ]]; then
+  block_content "a non-placeholder --apple-id value appears in staged content."
+fi
+
+team_id_lines="$(grep -Ei '^\+.*--team-id[[:space:]]+' <<< "${added_lines}" | grep -Fv 'TEAMID' || true)"
+if [[ -n "${team_id_lines}" ]]; then
+  block_content "a non-placeholder --team-id value appears in staged content."
+fi
+
+exit 0

@@ -101,11 +101,8 @@ final class ReminderPanelController: NSObject {
         headerStack.spacing = 10
         headerStack.alignment = .centerY
 
-        let okButton = NSButton(title: "OK", target: self, action: #selector(ok))
-        okButton.bezelStyle = .rounded
-
-        let skipButton = NSButton(title: "Skip", target: self, action: #selector(skip))
-        skipButton.bezelStyle = .rounded
+        let okButton = actionButton(title: "OK", action: #selector(ok))
+        let skipButton = actionButton(title: "Skip", action: #selector(skip))
 
         let buttonStack = NSStackView(views: [skipButton, okButton])
         buttonStack.translatesAutoresizingMaskIntoConstraints = false
@@ -183,6 +180,26 @@ final class ReminderPanelController: NSObject {
         }
 
         return NSFont(name: name, size: fontSize) ?? .systemFont(ofSize: fontSize, weight: weight)
+    }
+
+    private func actionButton(title: String, action: Selector) -> NSButton {
+        let button = NSButton(title: title, target: self, action: action)
+        let titleFont = NSFont.systemFont(ofSize: 13, weight: .regular)
+        let titleColor = appearance.headingTextColor.nsColor()
+        let attributedTitle = NSAttributedString(
+            string: title,
+            attributes: [
+                .font: titleFont,
+                .foregroundColor: titleColor
+            ]
+        )
+
+        button.bezelStyle = .rounded
+        button.font = titleFont
+        button.contentTintColor = titleColor
+        button.attributedTitle = attributedTitle
+        button.attributedAlternateTitle = attributedTitle
+        return button
     }
 
     private func resolve(_ outcome: ReminderOutcome) {

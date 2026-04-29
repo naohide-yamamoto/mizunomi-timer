@@ -4,7 +4,7 @@ import AppKit
 final class AboutWindowController: NSWindowController {
     init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 340, height: 240),
+            contentRect: NSRect(x: 0, y: 0, width: 340, height: 270),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
@@ -39,7 +39,7 @@ final class AboutWindowController: NSWindowController {
         nameLabel.font = .systemFont(ofSize: 20, weight: .semibold)
         nameLabel.alignment = .center
 
-        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.1.0"
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
         let versionLabel = NSTextField(labelWithString: "Version \(version)")
         versionLabel.font = .systemFont(ofSize: 13)
         versionLabel.textColor = .secondaryLabelColor
@@ -50,7 +50,13 @@ final class AboutWindowController: NSWindowController {
         copyrightLabel.textColor = .secondaryLabelColor
         copyrightLabel.alignment = .center
 
-        let stack = NSStackView(views: [iconView, nameLabel, versionLabel, copyrightLabel])
+        let updatesButton = NSButton(title: "Check for Updates", target: self, action: #selector(checkForUpdates))
+        updatesButton.bezelStyle = .rounded
+
+        let buttonSpacer = NSView()
+        buttonSpacer.translatesAutoresizingMaskIntoConstraints = false
+
+        let stack = NSStackView(views: [iconView, nameLabel, versionLabel, copyrightLabel, buttonSpacer, updatesButton])
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.orientation = .vertical
         stack.alignment = .centerX
@@ -61,8 +67,15 @@ final class AboutWindowController: NSWindowController {
         NSLayoutConstraint.activate([
             iconView.widthAnchor.constraint(equalToConstant: 80),
             iconView.heightAnchor.constraint(equalToConstant: 80),
+            buttonSpacer.heightAnchor.constraint(equalToConstant: 4),
+            updatesButton.widthAnchor.constraint(equalToConstant: 140),
             stack.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
+    }
+
+    @objc private func checkForUpdates() {
+        guard let url = URL(string: "https://github.com/naohide-yamamoto/mizunomi-timer/releases") else { return }
+        NSWorkspace.shared.open(url)
     }
 }

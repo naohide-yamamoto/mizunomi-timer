@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Second-pass guard in case a commit was created with --no-verify or from
+# another workflow path.
+
+tracked_files="$(git ls-files)"
+
+if [[ -z "${tracked_files}" ]]; then
+  exit 0
+fi
+
+block_push() {
+  local message="$1"
+  echo "Push blocked: ${message}" >&2
+  exit 1
+}
+
+while IFS= read -r path; do
+  [[ -z "${path}" ]] && continue
+
+  case "${path}" in
+    .build/*|build/*|DerivedData/*|dist/*)
+      block_push "local build/release artefact is tracked: ${path}"
+      ;;
+    *.app|*.app/*|*.dmg|*.pkg|*.zip|*.xcarchive|*.xcarchive/*)
+      block_push "distribution artefact is tracked: ${path}"
+      ;;
+    *.p12|*.cer|*.certSigningRequest|*.mobileprovision|*.provisionprofile)
+      block_push "signing/provisioning material is tracked: ${path}"
+      ;;
+    *.pem|*.key|*.p8|AuthKey_*.p8|.env|.env.*|*.local.md)
+      block_push "private or local-only file is tracked: ${path}"
+      ;;
+  esac
+done <<< "${tracked_files}"
+
+secret_matches="$(git grep -nI -E 'BEGIN [A-Z ]*PRIVATE KEY|APPLE_ID_PASSWORD|APP_SPECIFIC_PASSWORD|FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD|AC_PASSWORD|NOTARY_PASSWORD|NOTARY_API_KEY|AuthKey_[A-Z0-9]+\.p8' -- . ':(exclude).githooks/**' || true)"
+if [[ -n "${secret_matches}" ]]; then
+  echo "${secret_matches}" >&2
+  block_push "credential-looking content is present in tracked files."
+fi
+
+cli_credential_lines="$(git grep -nI -E -- '--(apple-id|team-id|password)[[:space:]]+' -- . ':(exclude).githooks/**' || true)"
+cli_credential_lines="$(grep -Ev 'you@example.com|TEAMID|app-specific-password' <<< "${cli_credential_lines}" || true)"
+if [[ -n "${cli_credential_lines}" ]]; then
+  echo "${cli_credential_lines}" >&2
+  block_push "non-placeholder Apple/notary command-line credentials are present in tracked files."
+fi
+
+exit 0
