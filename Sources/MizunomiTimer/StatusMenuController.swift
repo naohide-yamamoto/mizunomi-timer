@@ -20,10 +20,10 @@ final class StatusMenuController: NSObject {
     private let startItem = NSMenuItem(title: "Start", action: #selector(start), keyEquivalent: "")
     private let pauseItem = NSMenuItem(title: "Pause", action: #selector(pauseOrResume), keyEquivalent: "")
     private let stopItem = NSMenuItem(title: "Stop", action: #selector(stop), keyEquivalent: "")
-    private let settingsItem = NSMenuItem(title: "Settings", action: #selector(settings), keyEquivalent: ",")
-    private let helpItem = NSMenuItem(title: "Help", action: #selector(help), keyEquivalent: "?")
+    private let settingsItem = NSMenuItem(title: "Settings", action: #selector(settings), keyEquivalent: "")
+    private let helpItem = NSMenuItem(title: "Help", action: #selector(help), keyEquivalent: "")
     private let aboutItem = NSMenuItem(title: "About Mizunomi Timer", action: #selector(about), keyEquivalent: "")
-    private let quitItem = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
+    private let quitItem = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "")
 
     init(delegate: StatusMenuControllerDelegate) {
         self.delegate = delegate
