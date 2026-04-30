@@ -125,8 +125,9 @@ final class ReminderPanelController: NSObject {
             iconView.heightAnchor.constraint(equalToConstant: 30),
             contentStack.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 14),
             contentStack.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -14),
-            contentStack.topAnchor.constraint(equalTo: backgroundView.topAnchor, constant: 10),
-            contentStack.bottomAnchor.constraint(lessThanOrEqualTo: backgroundView.bottomAnchor, constant: -9),
+            contentStack.centerYAnchor.constraint(equalTo: backgroundView.centerYAnchor),
+            contentStack.topAnchor.constraint(greaterThanOrEqualTo: backgroundView.topAnchor, constant: 10),
+            contentStack.bottomAnchor.constraint(lessThanOrEqualTo: backgroundView.bottomAnchor, constant: -10),
             buttonStack.widthAnchor.constraint(equalToConstant: 132)
         ])
 
