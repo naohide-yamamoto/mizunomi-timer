@@ -8,7 +8,7 @@ Mizunomi Timer is free and open-source. If you find it useful, [optional contrib
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/naohideyamamoto)
 
-This document contains full details of Mizunomi Timer, many of which end-users do not need. [A brief user manual that lets you quickly start using the app is also available](Resources/UserManual.html).
+This document contains full details of Mizunomi Timer, many of which end-users do not need. [A brief user manual that lets you quickly start using the app is also available](https://naohide-yamamoto.github.io/mizunomi-timer/Resources/UserManual.html).
 
 ## Screenshots
 
