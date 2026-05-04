@@ -39,6 +39,7 @@ No backward compatibility is planned for earlier macOS releases.
 - If you skip one or more reminders, or do not respond to them, the next reminder reports how many minutes have passed without water.
 - Pause preserves the original schedule and skips reminder display until Resume.
 - Stop clears the running timer state and returns the menu item to Start.
+- Reset stops the current timer and immediately starts a fresh timer from now.
 - Interval history is kept in memory only and is reset when the app quits.
 
 ## Menu
@@ -48,6 +49,7 @@ The menu-bar menu contains:
 - Start, replaced by `Started at 2:30 pm` after the timer starts
 - Pause, replaced by Resume while paused
 - Stop
+- Reset
 - Settings
 - Help
 - About Mizunomi Timer

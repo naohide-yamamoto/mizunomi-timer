@@ -5,6 +5,7 @@ protocol StatusMenuControllerDelegate: AnyObject {
     func statusMenuDidChooseStart()
     func statusMenuDidChoosePauseOrResume()
     func statusMenuDidChooseStop()
+    func statusMenuDidChooseReset()
     func statusMenuDidChooseSettings()
     func statusMenuDidChooseHelp()
     func statusMenuDidChooseAbout()
@@ -20,6 +21,7 @@ final class StatusMenuController: NSObject {
     private let startItem = NSMenuItem(title: "Start", action: #selector(start), keyEquivalent: "")
     private let pauseItem = NSMenuItem(title: "Pause", action: #selector(pauseOrResume), keyEquivalent: "")
     private let stopItem = NSMenuItem(title: "Stop", action: #selector(stop), keyEquivalent: "")
+    private let resetItem = NSMenuItem(title: "Reset", action: #selector(reset), keyEquivalent: "")
     private let settingsItem = NSMenuItem(title: "Settings", action: #selector(settings), keyEquivalent: "")
     private let helpItem = NSMenuItem(title: "Help", action: #selector(help), keyEquivalent: "")
     private let aboutItem = NSMenuItem(title: "About Mizunomi Timer", action: #selector(about), keyEquivalent: "")
@@ -38,13 +40,14 @@ final class StatusMenuController: NSObject {
 
         menu.autoenablesItems = false
 
-        for item in [startItem, pauseItem, stopItem, settingsItem, helpItem, aboutItem, quitItem] {
+        for item in [startItem, pauseItem, stopItem, resetItem, settingsItem, helpItem, aboutItem, quitItem] {
             item.target = self
         }
 
         menu.addItem(startItem)
         menu.addItem(pauseItem)
         menu.addItem(stopItem)
+        menu.addItem(resetItem)
         menu.addItem(.separator())
         menu.addItem(settingsItem)
         menu.addItem(helpItem)
@@ -64,24 +67,28 @@ final class StatusMenuController: NSObject {
             pauseItem.title = "Pause"
             pauseItem.isEnabled = false
             stopItem.isEnabled = false
+            resetItem.isEnabled = false
         case .waiting:
             startItem.title = "Start"
             startItem.isEnabled = true
             pauseItem.title = "Pause"
             pauseItem.isEnabled = false
             stopItem.isEnabled = true
+            resetItem.isEnabled = true
         case .running(let startedAt):
             startItem.title = "Started at \(TimeFormatter.displayTime(from: startedAt))"
             startItem.isEnabled = false
             pauseItem.title = "Pause"
             pauseItem.isEnabled = true
             stopItem.isEnabled = true
+            resetItem.isEnabled = true
         case .paused(let startedAt):
             startItem.title = "Started at \(TimeFormatter.displayTime(from: startedAt))"
             startItem.isEnabled = false
             pauseItem.title = "Resume"
             pauseItem.isEnabled = true
             stopItem.isEnabled = true
+            resetItem.isEnabled = true
         }
     }
 
@@ -95,6 +102,10 @@ final class StatusMenuController: NSObject {
 
     @objc private func stop() {
         delegate?.statusMenuDidChooseStop()
+    }
+
+    @objc private func reset() {
+        delegate?.statusMenuDidChooseReset()
     }
 
     @objc private func settings() {

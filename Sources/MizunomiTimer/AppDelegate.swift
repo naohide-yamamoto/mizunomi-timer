@@ -115,6 +115,13 @@ extension AppDelegate: StatusMenuControllerDelegate {
         timerController.stop()
     }
 
+    func statusMenuDidChooseReset() {
+        activeReminderPanel?.dismissWithoutRecording()
+        activeReminderPanel = nil
+        timerController.stop()
+        timerController.startNow()
+    }
+
     func statusMenuDidChooseSettings() {
         openSettingsWindow()
     }
