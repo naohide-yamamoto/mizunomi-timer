@@ -154,7 +154,7 @@ The command should print `.githooks`.
 - Display name: Mizunomi Timer
 - Package/repo name: `mizunomi-timer`
 - Bundle ID: `com.naohideyamamoto.mizunomitimer`
-- Version: `1.0.0`
+- Version: `1.0.1`
 - Licence: MIT
 
 ## Privacy
